@@ -1,11 +1,6 @@
-// https://html.spec.whatwg.org/multipage/dom.html#interactive-content
-export const INTERACTIVE_CONTENT_SELECTOR = "a[href], audio[controls], button, details, embed, iframe, img[usemap], input:not([type='hidden']), label, select, textarea, video[controls]";
+import {INTERACTIVE_CONTENT_SELECTOR, fail} from './adiv';
 
-export function fail(): never {
-    throw new Error("missing element");
-}
-
-class ADiv extends HTMLElement {
+class SelectableADiv extends HTMLElement {
     href: string | null = null;
     hitbox: HTMLElement;
     shadowRoot: ShadowRoot;
@@ -25,9 +20,8 @@ class ADiv extends HTMLElement {
                     z-index:2;
                 }
             </style>
-            <a id="hitbox">
-            </a>
-            <slot name="interactive_content"></slot>`;
+            <a id="hitbox"></a>
+            <slot></slot>`;
         this.hitbox = this.shadowRoot.getElementById("hitbox") ?? fail();
         this.href = this.getAttribute("href");
     }
@@ -65,4 +59,4 @@ class ADiv extends HTMLElement {
     }
 }
 
-customElements.define('my-adiv', ADiv);
+customElements.define('selectable-adiv', SelectableADiv);
