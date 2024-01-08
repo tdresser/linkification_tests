@@ -1,8 +1,6 @@
-// https://html.spec.whatwg.org/multipage/dom.html#interactive-content
-export const INTERACTIVE_CONTENT_SELECTOR = "a[href], audio[controls], button, details, embed, iframe, img[usemap], input:not([type='hidden']), label, select, textarea, video[controls]";
+import {INTERACTIVE_CONTENT_SELECTOR} from './adiv';
 
-// Note that this doesn't update when content changes.
-class ADiv extends HTMLElement {
+class SelectableADiv extends HTMLElement {
     constructor() {
         super();
         this.style.display = "block";
@@ -17,9 +15,19 @@ class ADiv extends HTMLElement {
                     inset: 0;
                     z-index:2;
                 }
+                #hitbox:link {
+                    text-decoration: inherit;
+                    color: inherit;
+                    cursor: auto;
+                }
+                #hitbox:visited {
+                    text-decoration: inherit;
+                    color: inherit;
+                    cursor: auto;
+                }
             </style>
-            <a id="hitbox"></a>
-            <slot></slot>`;
+            <a id="hitbox"><slot></slot></a>
+            <slot name="interactable"></slot>`;
         const hitbox = shadowRoot.getElementById("hitbox") ?? (() => {throw ""})();
         hitbox.setAttribute("href", this.getAttribute("href") ?? "");
 
@@ -34,14 +42,12 @@ class ADiv extends HTMLElement {
         nodes = nodes.concat(elements.map(x => {
             return [...x.querySelectorAll(INTERACTIVE_CONTENT_SELECTOR)]
         }).flat());
+        console.log("NODES:", nodes);
         nodes.forEach(el => {
-            if (!(el instanceof HTMLElement)) {
-                return;
-            }
-            el.style.position = "relative";
-            el.style.zIndex = "5";
+            el.setAttribute("slot", "interactable");
+            console.log("SETTING INTERACTABLE", el);
         });
     }
 }
 
-customElements.define('my-adiv', ADiv);
+customElements.define('selectable-adiv', SelectableADiv);
