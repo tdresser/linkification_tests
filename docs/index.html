@@ -4,15 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Testing nested links</title>
-    <script type="module" crossorigin src="/linkification_tests/assets/index-eTIHxY_A.js"></script>
-    <link rel="stylesheet" crossorigin href="/linkification_tests/assets/index-4-fBAZLe.css">
+    <style>a:hover {
+  color:red;
+}
+
+adiv {
+  background-color: #ddd;
+}
+
+adiv:hover {
+  background-color: #aaa;
+}
+    </style>
+    <script type="module" crossorigin src="/linkification_tests/assets/index-gWs83_Y4.js"></script>
   </head>
   <body>
-    <my-adiv href="http://www.google.com">
-      <div><p><a href="www.test.com">Test</a> And some more text.</p></div>
-      <a>Toplevel</a>
+    <adiv href="http://www.google.com">
+      <div><p><a href="http://www.example.com">Test</a> And some more text.</p></div>
+      <a href="foo">Toplevel</a>
       <span>A span</span>
       <details><summary>Foo</summary>Foo Bar</details>
-    </my-adiv>
+    </div>
   </body>
 </html>

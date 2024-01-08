@@ -2,10 +2,10 @@ a:hover {
   color:red;
 }
 
-my-adiv {
+adiv {
   background-color: #ddd;
 }
 
-my-adiv:hover {
-  background: #aaa;
+adiv:hover {
+  background-color: #aaa;
 }

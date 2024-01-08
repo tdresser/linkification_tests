@@ -1,13 +1,18 @@
-import {INTERACTIVE_CONTENT_SELECTOR} from './adiv';
+// https://html.spec.whatwg.org/multipage/dom.html#interactive-content
+export const INTERACTIVE_CONTENT_SELECTOR = "a[href], audio[controls], button, details, embed, iframe, img[usemap], input:not([type='hidden']), label, select, textarea, video[controls]";
 
-class SelectableADiv extends HTMLElement {
+// Note that this doesn't update when content changes.
+class ADiv extends HTMLElement {
     constructor() {
         super();
-        this.style.display = "block";
+    }
+
+    // TODO: this can be called multiple times...
+    connectedCallback() {
         const shadowRoot = this.attachShadow({ mode: 'closed' });
         shadowRoot.innerHTML = `
             <style>
-                :host {
+                #container {
                     position:relative;
                 }
                 #hitbox {
@@ -15,23 +20,15 @@ class SelectableADiv extends HTMLElement {
                     inset: 0;
                     z-index:2;
                 }
-                #hitbox:link {
-                    text-decoration: inherit;
-                    color: inherit;
-                    cursor: auto;
-                }
-                #hitbox:visited {
-                    text-decoration: inherit;
-                    color: inherit;
-                    cursor: auto;
-                }
             </style>
-            <a id="hitbox"><slot></slot></a>
-            <slot name="interactable"></slot>`;
+            <div id="container">
+            <a id="hitbox"></a>
+            <slot></slot>
+            </div>`;
         const hitbox = shadowRoot.getElementById("hitbox") ?? (() => {throw ""})();
         hitbox.setAttribute("href", this.getAttribute("href") ?? "");
 
-        // Children need to be style via script.
+        // Children need to be styled via script.
         // See https://stackoverflow.com/a/61631668 for why.
         const slot = shadowRoot.querySelectorAll('slot')[0];
         const elements = slot.assignedElements();
@@ -42,12 +39,14 @@ class SelectableADiv extends HTMLElement {
         nodes = nodes.concat(elements.map(x => {
             return [...x.querySelectorAll(INTERACTIVE_CONTENT_SELECTOR)]
         }).flat());
-        console.log("NODES:", nodes);
         nodes.forEach(el => {
-            el.setAttribute("slot", "interactable");
-            console.log("SETTING INTERACTABLE", el);
+            if (!(el instanceof HTMLElement)) {
+                return;
+            }
+            el.style.position = "relative";
+            el.style.zIndex = "5";
         });
     }
 }
 
-customElements.define('selectable-adiv', SelectableADiv);
+customElements.define('ce-adiv', ADiv);

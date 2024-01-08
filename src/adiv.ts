@@ -1,47 +1,30 @@
-// https://html.spec.whatwg.org/multipage/dom.html#interactive-content
-export const INTERACTIVE_CONTENT_SELECTOR = "a[href], audio[controls], button, details, embed, iframe, img[usemap], input:not([type='hidden']), label, select, textarea, video[controls]";
+import './ce-adiv'
 
-// Note that this doesn't update when content changes.
-class ADiv extends HTMLElement {
-    constructor() {
-        super();
-        this.style.display = "block";
-        const shadowRoot = this.attachShadow({ mode: 'closed' });
-        shadowRoot.innerHTML = `
-            <style>
-                :host {
-                    position:relative;
+// @ts-ignore
+if (typeof HTMLADivElement != "function") {
+    (function () {
+        const sheet = new CSSStyleSheet()
+        sheet.replaceSync(`adiv, ce-adiv {
+            display:none;
+        }`);
+        document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+        document.addEventListener("DOMContentLoaded", () => {
+            sheet.replaceSync(`adiv, ce-adiv {
+                display:block !important;
+            }`)
+            document.querySelectorAll("aspan,adiv").forEach(x => {
+                let ce = document.createElement("ce-" + x.tagName);
+                ce.setAttribute("href", x.getAttribute("href") ?? "");
+                while (true) {
+                    if (x.childElementCount == 0) {
+                        break;
+                    }
+                    const c = x.children[0];
+                    ce.appendChild(c);
+                    console.log(c);
                 }
-                #hitbox {
-                    position:absolute;
-                    inset: 0;
-                    z-index:2;
-                }
-            </style>
-            <a id="hitbox"></a>
-            <slot></slot>`;
-        const hitbox = shadowRoot.getElementById("hitbox") ?? (() => {throw ""})();
-        hitbox.setAttribute("href", this.getAttribute("href") ?? "");
-
-        // Children need to be style via script.
-        // See https://stackoverflow.com/a/61631668 for why.
-        const slot = shadowRoot.querySelectorAll('slot')[0];
-        const elements = slot.assignedElements();
-
-        // Start by considering the top level nodes themselves.
-        let nodes = elements.filter(x => x.matches(INTERACTIVE_CONTENT_SELECTOR));
-        // Then consider all children.
-        nodes = nodes.concat(elements.map(x => {
-            return [...x.querySelectorAll(INTERACTIVE_CONTENT_SELECTOR)]
-        }).flat());
-        nodes.forEach(el => {
-            if (!(el instanceof HTMLElement)) {
-                return;
-            }
-            el.style.position = "relative";
-            el.style.zIndex = "5";
-        });
-    }
-}
-
-customElements.define('my-adiv', ADiv);
+                x.appendChild(ce);
+            })
+        })
+    })()
+};

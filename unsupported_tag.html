@@ -1,30 +1,52 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Unsupported tag test.</title>
-  </head>
-  <style>
-    adiv, aspan, div, span {
-      background-color: aqua;
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unsupported tag test.</title>
+</head>
+<style>
+  adiv,
+  aspan,
+  div,
+  span {
+    background-color: aqua;
+  }
+
+  adiv {
+    display: block;
+  }
+
+  adiv,
+  aspan {
+    cursor: pointer;
+  }
+</style>
+
+<body>
+  <span>
+    <p>This is content <a href="http://www.google.com">Test</a></p>
+  </span>
+  <aspan href="http://www.example.com">
+    <p>This is content <a href="http://www.google.com">Test</a></p>
+  </aspan>
+  <div>
+    <p>This is content <a href="http://www.google.com">Test</a></p>
+  </div>
+  <adiv href="http://www.example.com">
+    <p>This is content <a href="http://www.google.com">Test</a></p>
+  </adiv>
+  <script>
+    if (!(typeof HTMLADivElement == "function")) {
+      document.querySelectorAll("adiv,aspan").forEach(x => {
+        x.addEventListener("click", () => {
+          console.log("GOING TO ", x.getAttribute("href"))
+          window.location.href = x.getAttribute("href");
+        })
+      })
     }
-    adiv {
-      display:block;
-    }
-  </style>
-  <body>
-    <span>
-      <p>This is content <a href="http://www.google.com">Test</a></p>
-    </span>
-    <aspan>
-        <p>This is content <a href="http://www.google.com">Test</a></p>
-    </aspan>
-    <div>
-      <p>This is content <a href="http://www.google.com">Test</a></p>
-    </div>
-    <adiv>
-        <p>This is content <a href="http://www.google.com">Test</a></p>
-    </adiv>
-  </body>
+  </script>
+</body>
+
 </html>
