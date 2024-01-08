@@ -1,4 +1,5 @@
-import { fail } from "./main";
+// https://html.spec.whatwg.org/multipage/dom.html#interactive-content
+const INTERACTABLE_CONTENT_SELECTOR = "a[href], audio[controls], button, details, embed, iframe, img[usemap], input:not([type='hidden']), label, select, textarea, video[controls]";
 
 class ADiv extends HTMLElement {
     href: string | null = null;
@@ -12,11 +13,7 @@ class ADiv extends HTMLElement {
         this.shadowRoot.innerHTML = `
             <style>
                 :host {
-                    background: #ddd;
                     position:relative;
-                }
-                :host(:hover) {
-                    background: #aaa;
                 }
                 #hitbox {
                     position:absolute;
@@ -26,20 +23,8 @@ class ADiv extends HTMLElement {
             </style>
             <a id="hitbox"></a>
             <slot></slot>`;
-        // Children need to be style via script.
-        // See https://stackoverflow.com/a/61631668 for why.
         this.hitbox = this.shadowRoot.getElementById("hitbox") ?? fail();
         this.href = this.getAttribute("href");
-        this.render();
-    }
-
-    connectedCallback() {
-        console.log('connected!', this);
-        this.render();
-    }
-
-    disconnectedCallback() {
-        console.log('disconnected', this);
     }
 
     static observedAttributes = ['href'];
@@ -48,34 +33,35 @@ class ADiv extends HTMLElement {
         if (name != "href") {
             throw ("Invalid attribute changed");
         }
-        console.log("Attr changed.")
         this.href = newValue;
         this.render();
     }
-
     render() {
         this.hitbox.setAttribute("href", this.href ?? "");
 
-        let slot = this.shadowRoot.querySelectorAll('slot')[0] ;
-        let nodes = slot.assignedNodes().map(x => {
-            if (x instanceof HTMLElement) {
-                return [...x.querySelectorAll("a")]
-            } else {
-                return [];
-            }
-        }).flat().filter(x => x instanceof HTMLElement) as HTMLElement[];
-        console.log("nodes: ", nodes);
-        nodes.forEach(el => {
-            console.log("ELEMENT IS: ", el);
-            el.style.position = "relative";
-            console.log(el.tagName);
+        // Children need to be style via script.
+        // See https://stackoverflow.com/a/61631668 for why.
+        const slot = this.shadowRoot.querySelectorAll('slot')[0];
+        const elements = slot.assignedElements();
 
-            if (el.tagName == "A") {
-                console.log("SETTING Z INDEX");
-                el.style.zIndex = "5";
+        // Start by considering the top level nodes themselves.
+        let nodes = elements.filter(x => x.matches(INTERACTABLE_CONTENT_SELECTOR));
+        // Then consider all children.
+        nodes = nodes.concat(elements.map(x => {
+            return [...x.querySelectorAll(INTERACTABLE_CONTENT_SELECTOR)]
+        }).flat());
+        nodes.forEach(el => {
+            if (!(el instanceof HTMLElement)) {
+                return;
             }
-        })
+            el.style.position = "relative";
+            el.style.zIndex = "5";
+        });
     }
 }
 
 customElements.define('my-adiv', ADiv);
+
+function fail(): never {
+    throw new Error("missing element");
+}
