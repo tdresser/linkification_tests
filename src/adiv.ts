@@ -1,10 +1,7 @@
 // https://html.spec.whatwg.org/multipage/dom.html#interactive-content
-export const INTERACTIVE_CONTENT_SELECTOR = "a[href], audio[controls], button, details, embed, iframe, img[usemap], input:not([type='hidden']), label, select, textarea, video[controls]";
+const INTERACTIVE_CONTENT_SELECTOR = "a[href], audio[controls], button, details, embed, iframe, img[usemap], input:not([type='hidden']), label, select, textarea, video[controls]";
 
-export function fail(): never {
-    throw new Error("missing element");
-}
-
+// Note that this doesn't update when content changes.
 class ADiv extends HTMLElement {
     href: string | null = null;
     hitbox: HTMLElement;
@@ -25,24 +22,10 @@ class ADiv extends HTMLElement {
                     z-index:2;
                 }
             </style>
-            <a id="hitbox">
-            </a>
-            <slot name="interactive_content"></slot>`;
-        this.hitbox = this.shadowRoot.getElementById("hitbox") ?? fail();
+            <a id="hitbox"></a>
+            <slot></slot>`;
+        this.hitbox = this.shadowRoot.getElementById("hitbox") ?? (() => {throw ""})();
         this.href = this.getAttribute("href");
-    }
-
-    static observedAttributes = ['href'];
-
-    attributeChangedCallback(name: string, _: string, newValue: string) {
-        if (name != "href") {
-            throw ("Invalid attribute changed");
-        }
-        this.href = newValue;
-        this.render();
-    }
-    render() {
-        this.hitbox.setAttribute("href", this.href ?? "");
 
         // Children need to be style via script.
         // See https://stackoverflow.com/a/61631668 for why.
