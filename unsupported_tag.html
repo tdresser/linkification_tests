@@ -3,11 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
+    <title>Unsupported tag test.</title>
   </head>
+  <style>
+    adiv, aspan, div, span {
+      background-color: aqua;
+    }
+    adiv {
+      display:block;
+    }
+  </style>
   <body>
+    <span>
+      <p>This is content <a href="http://www.google.com">Test</a></p>
+    </span>
     <aspan>
         <p>This is content <a href="http://www.google.com">Test</a></p>
     </aspan>
+    <div>
+      <p>This is content <a href="http://www.google.com">Test</a></p>
+    </div>
+    <adiv>
+        <p>This is content <a href="http://www.google.com">Test</a></p>
+    </adiv>
   </body>
 </html>
